@@ -41,9 +41,9 @@ function draw({ clientX: x, clientY: y }) {
         ctx.moveTo(x, y);
     }
     if (mode == "erase") {
-        ctx.beginPath();
         ctx.globalCompositeOperation = "destination-out";
-        ctx.arc(x, y, 1, 0, Math.PI * 2, false);
+        ctx.beginPath();
+        ctx.arc(x, y, thickness, 0, Math.PI * 2, false);
         ctx.fill();
     }
     if (mode == "ellipse") {
@@ -102,7 +102,6 @@ function openTab(tab) {
 }
 
 const deleteBtn = document.querySelector(".trashIcon");
-
 deleteBtn.addEventListener("click", clearCanvas);
 
 function clearCanvas() {
@@ -118,18 +117,24 @@ function updateBgColor() {
 }
 
 document.addEventListener("keydown", (e) => {
+    const keys = ["z", "s", "c", "e"];
     const key = e.key.toLowerCase();
-    if (key == "c") {
+    const ctrl = e.ctrlKey;
+    if (keys.includes(key)) e.preventDefault();
+    console.log(e);
+    // Ctrl Shortcuts
+    if (key == "z" && ctrl) {
+        undo();
+    } else if (e.key == "s" && ctrl) {
+        downloadBtn.click();
+    }
+    // Key shortcuts
+    else if (key == "c") {
         openTab("colorTab");
+    } else if (key == "e") {
+        changeBrush("erase");
     }
 });
-
-// ctx.font = "30px Poppins";
-// ctx.fillText("Hello World", 10, 50);
-
-function setTool() {
-    mode = "erase";
-}
 
 const thicknessBtn = document.querySelector(".thickness");
 thicknessBtn.addEventListener("change", updateThickness);
@@ -144,11 +149,19 @@ function init() {
 }
 init();
 
-document.addEventListener("contextmenu", openContextMenu);
+// ==============
+//  Coming Soon
+// ==============
 
-function openContextMenu(e) {
-    e.preventDefault();
-}
+// const menu = document.querySelector(".contextMenu");
+// document.addEventListener("contextmenu", openContextMenu);
+
+// function openContextMenu(e) {
+//     e.preventDefault();
+//     menu.style.left = e.clientX + "px";
+//     menu.style.top = e.clientY + "px";
+//     console.log(e);
+// }
 
 function changeBrush(brush) {
     if (!brush) return;
