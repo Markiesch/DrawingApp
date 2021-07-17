@@ -82,17 +82,16 @@ canvas {
     padding: 0.1em;
 }
 
-article {
+.tab {
     position: absolute;
     top: 0;
     background-color: inherit;
     padding: 0.75em;
     color: white;
-}
-
-.tab {
-    display: none;
+    background-color: #28292e;
+    border-radius: 5px;
     min-width: 15vw;
+    display: none;
 }
 
 input {
