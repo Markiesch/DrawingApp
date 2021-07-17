@@ -4,6 +4,7 @@ const colorPicker = document.querySelector(".colorPicker");
 const backgroundPicker = document.querySelector(".backgroundPicker");
 const downloadBtn = document.querySelector(".downloadBtn");
 const toolBox = document.querySelector(".toolbox");
+const tabs = document.querySelectorAll(".tab");
 let isDrawing = false;
 let restore_array = [];
 let index = -1;
@@ -14,50 +15,6 @@ let thickness;
 downloadBtn.addEventListener("click", download);
 function download() {
     downloadBtn.href = canvas.toDataURL();
-}
-
-canvas.addEventListener("mousedown", start);
-canvas.addEventListener("mousemove", draw);
-canvas.addEventListener("mouseup", stop);
-canvas.addEventListener("mouseout", stop);
-
-function start(e) {
-    closeAllTabs();
-    if (e.button == 2 || e.button == 1) return;
-    isDrawing = true;
-    draw(e);
-}
-
-function draw({ clientX: x, clientY: y }) {
-    if (!isDrawing) return;
-    ctx.lineWidth = thickness;
-    ctx.strokeStyle = color;
-    if (mode == "pen") {
-        ctx.globalCompositeOperation = "source-over";
-        ctx.lineCap = "round";
-        ctx.lineTo(x, y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-    }
-    if (mode == "erase") {
-        ctx.globalCompositeOperation = "destination-out";
-        ctx.beginPath();
-        ctx.arc(x, y, thickness, 0, Math.PI * 2, false);
-        ctx.fill();
-    }
-    if (mode == "ellipse") {
-        ctx.beginPath();
-        ctx.lineCap = "round";
-        ctx.arc(x, y, 20, 0, 2 * Math.PI, false);
-        ctx.stroke();
-    }
-}
-function stop() {
-    isDrawing = false;
-    ctx.beginPath();
-    restore_array.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
-    index += 1;
 }
 
 function undo() {
@@ -76,16 +33,13 @@ function resizeCanvas() {
 
     canvas.height = height;
     canvas.width = width;
-    if (restore_array) {
-        try {
-            ctx.putImageData(restore_array[index], 0, 0);
-        } catch (err) {
-            console.warn(err);
-        }
+
+    try {
+        ctx.putImageData(restore_array[index], 0, 0);
+    } catch (err) {
+        console.warn(err);
     }
 }
-
-const tabs = document.querySelectorAll(".tab");
 
 function closeAllTabs() {
     for (const tab of tabs) {
@@ -101,15 +55,13 @@ function openTab(tab) {
     el.style.left = toolBox.offsetWidth + 10 + "px";
 }
 
-const deleteBtn = document.querySelector(".trashIcon");
-deleteBtn.addEventListener("click", clearCanvas);
-
 function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 function updateColor() {
     color = colorPicker.value;
+    cursor.backgroundColor = color;
 }
 
 function updateBgColor() {
@@ -117,37 +69,40 @@ function updateBgColor() {
 }
 
 document.addEventListener("keydown", (e) => {
+    console.log(e);
     const keys = ["z", "s", "c", "e"];
     const key = e.key.toLowerCase();
     const ctrl = e.ctrlKey;
     if (keys.includes(key)) e.preventDefault();
-    console.log(e);
     // Ctrl Shortcuts
-    if (key == "z" && ctrl) {
-        undo();
-    } else if (e.key == "s" && ctrl) {
-        downloadBtn.click();
-    }
+    if (key == "z" && ctrl) return undo();
+    if (e.key == "s" && ctrl) return downloadBtn.click();
     // Key shortcuts
-    else if (key == "c") {
-        openTab("colorTab");
-    } else if (key == "e") {
-        changeBrush("erase");
-    }
+    if (key == "c") return openTab("colorTab");
+    if (key == "e") return changeBrush("erase");
+});
+
+const cursor = document.querySelector(".cursor");
+
+document.addEventListener("mousemove", ({ clientX: x, clientY: y }) => {
+    cursor.style.left = x + "px";
+    cursor.style.top = y + "px";
 });
 
 const thicknessBtn = document.querySelector(".thickness");
 thicknessBtn.addEventListener("change", updateThickness);
 function updateThickness() {
     thickness = thicknessBtn.value;
+
+    if (thickness > 4) {
+        cursor.style.display = "block";
+        canvas.style.cursor = "none";
+    } else {
+        cursor.style.display = "none";
+        canvas.style.cursor = "crosshair";
+    }
+    cursor.style.setProperty("--cursor-width", thickness + "px");
 }
-function init() {
-    resizeCanvas();
-    colorPicker.value = "#ffffff";
-    color = colorPicker.value;
-    updateThickness();
-}
-init();
 
 // ==============
 //  Coming Soon
@@ -160,10 +115,19 @@ init();
 //     e.preventDefault();
 //     menu.style.left = e.clientX + "px";
 //     menu.style.top = e.clientY + "px";
-//     console.log(e);
 // }
 
 function changeBrush(brush) {
     if (!brush) return;
     mode = brush;
 }
+
+function init() {
+    restore_array.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+    index += 1;
+    resizeCanvas();
+    colorPicker.value = "#ffffff";
+    color = colorPicker.value;
+    updateThickness();
+}
+init();
