@@ -6,11 +6,12 @@
         <link rel="shortcut icon" href="assets/favicon.png" type="image/x-icon" />
         <title>Drawing App</title>
         <link rel="stylesheet" href="style.css" />
-        <script src="script.js" defer></script>
+        <script src="scripts/script.js" defer></script>
+        <script src="scripts/draw.js" defer></script>
     </head>
     <body>
         <canvas></canvas>
-
+        <div class="cursor"></div>
         <section class="toolbox">
             <div>
                 <a class="downloadBtn" href="" download="painting.png">
@@ -63,7 +64,7 @@
                         ></path>
                     </svg>
                 </div>
-                <div class="trashIcon btn tooltip">
+                <div onclick="clearCanvas()" class="trashIcon btn tooltip">
                     <p class="tooltiptext">Delete Painting</p>
                     <svg viewBox="0 0 448 512">
                         <path

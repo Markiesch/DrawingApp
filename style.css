@@ -15,7 +15,6 @@ body {
 canvas {
     background-color: #1d2027;
     position: relative;
-    cursor: crosshair;
 }
 
 .toolbox {
@@ -116,7 +115,7 @@ input:focus {
     top: 0;
     right: 0;
     width: max-content;
-    transform: translateX(125%);
+    transform: translateX(calc(100% + 20px));
     background-color: #28292e;
     color: #fff;
     text-align: center;
@@ -158,4 +157,17 @@ input:focus {
     width: 50px;
     height: 50px;
     background-color: black;
+}
+
+.cursor {
+    --cursor-width: 10px;
+    left: 0;
+    top: 0;
+    position: fixed;
+    width: var(--cursor-width);
+    height: var(--cursor-width);
+    border: 1px solid white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
 }
